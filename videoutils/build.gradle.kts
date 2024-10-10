@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.app.imagepicker"
+    namespace = "com.app.videoutils"
     compileSdk = 34
 
     defaultConfig {

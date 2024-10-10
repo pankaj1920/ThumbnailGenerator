@@ -11,8 +11,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.app.videoeditorlibrary.navigation.routes.VideoLibRoutes
 import com.app.videoeditorlibrary.ui.screen.HomeScreen
-import com.app.videoeditorlibrary.ui.screen.ThumbnailGeneratorScreen
-import com.app.videoeditorlibrary.ui.screen.VideoPickerScreen
+import com.app.videoeditorlibrary.ui.screen.thumbnail.ThumbnailGeneratorScreen
+import com.app.videoeditorlibrary.ui.screen.trimmer.VideoTrimmerScreen
+import com.app.videoeditorlibrary.ui.screen.videopicker.VideoPickerScreen
 
 @RequiresExtension(extension = Build.VERSION_CODES.R, version = 2)
 @Composable
@@ -54,6 +55,9 @@ fun RootNavGraph(navController: NavHostController) {
         }
         composable<VideoLibRoutes.VideoThumbnailScreen> { // custom type as generic
             ThumbnailGeneratorScreen(navController)
+        }
+        composable<VideoLibRoutes.VideoTrimmerScreen> { // custom type as generic
+            VideoTrimmerScreen(navController)
         }
 
     }

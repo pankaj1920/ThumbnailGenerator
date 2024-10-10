@@ -62,5 +62,6 @@ fun navigateTo(navController: NavHostController, id: Int) {
         2 -> navController.navigate(VideoLibRoutes.VideoPickerScreen)
         3 -> navController.navigate(VideoLibRoutes.VideoPickerScreen)
         4 -> navController.navigate(VideoLibRoutes.VideoThumbnailScreen)
+        5 -> navController.navigate(VideoLibRoutes.VideoTrimmerScreen)
     }
 }

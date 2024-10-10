@@ -1,18 +1,21 @@
-package com.app.videoeditorlibrary.ui.screen
+package com.app.videoeditorlibrary.ui.screen.thumbnail
 
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
 import androidx.annotation.RequiresExtension
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -30,51 +33,37 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.app.gallerypicker.compose.video.ComposeMultipleVideoPicker
-import com.app.gallerypicker.compose.video.ComposeSingleVideoPicker
 import com.app.gallerypicker.compose.video.pickMultipleVideo
-import com.app.gallerypicker.compose.video.pickSingleVideo
-import com.app.thumbnailgenerator.utils.getVideoThumbnail
 import com.app.thumbnailgenerator.utils.multiVideoThumbnailFlow
+import com.app.thumbnailgenerator.utils.videoThumbnailListFlow
 import com.app.videoeditorlibrary.ui.customview.BlueButton
-import com.app.videoeditorlibrary.ui.customview.SpaceWidth
+import com.app.videoeditorlibrary.ui.customview.SpaceHeight
 import com.app.videoeditorlibrary.utils.Print
 import kotlinx.coroutines.launch
 
 @RequiresExtension(extension = Build.VERSION_CODES.R, version = 2)
 @Composable
-fun VideoPickerScreen(navController: NavHostController) {
-    var generatedThumbNail by remember { mutableStateOf<Bitmap?>(null) }
-    var multipleVideoThumbNailList = remember { mutableStateListOf<Bitmap>() }
+fun ThumbnailGeneratorScreen(navController: NavHostController) {
+    val generatedThumbNail by remember { mutableStateOf<Bitmap?>(null) }
+    val videoThumbNailList = remember { mutableStateListOf<Bitmap>() }
+    val thumbNailList = remember { mutableStateListOf<Bitmap>() }
+    val videoUriList = remember { mutableStateListOf<Uri>() }
 
 
     val context = LocalContext.current
-    val videoUri by remember { mutableStateOf<Uri?>(null) }
     var singleVideo by remember { mutableStateOf(false) }
     var multipleVideo by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
 
-    ComposeSingleVideoPicker(onSingleVideoSelected = { uri ->
-        coroutineScope.launch {
-            generatedThumbNail = getVideoThumbnail(context, uri!!)
-            singleVideo = true
-            multipleVideo = false
-        }
-    }, onSingleVideoError = { error, message ->
-        Print.log("onSingleVideoSelected $error")
-    })
 
     ComposeMultipleVideoPicker(
         onMultipleVideoSelected = { uri ->
+            videoUriList.addAll(uri!!)
             multiVideoThumbnailFlow(context, uri!!, coroutineScope) { thumbnail ->
-                multipleVideoThumbNailList.add(thumbnail)
+                videoThumbNailList.add(thumbnail)
                 singleVideo = false
                 multipleVideo = true
             }
-            /*     coroutineScope.launch {
-                     multipleVideoThumbNailList = getMultiVideoThumbnail(context, uri!!)
-                     singleVideo = false
-                     multipleVideo = true
-                 }*/
         }, onVideoError = { error, message ->
             Print.log("onMultipleVideoSelected $error")
         })
@@ -86,50 +75,53 @@ fun VideoPickerScreen(navController: NavHostController) {
     ) {
         Column(modifier = Modifier.weight(1f)) {
 
-            if (singleVideo) {
-                VideoThumbNail(generatedThumbNail)
-            } else {
-                LazyVerticalGrid(
-                    modifier = Modifier.fillMaxSize(), columns = GridCells.Fixed(2)
-                ) {
-                    itemsIndexed(multipleVideoThumbNailList) { index, item ->
-                        VideoThumbNail(item)
-                    }
+            LazyVerticalGrid(
+                modifier = Modifier.weight(1f), columns = GridCells.Fixed(2)
+            ) {
+                itemsIndexed(thumbNailList) { index, item ->
+                    VideoThumbNail(item)
+                }
+            }
+            SpaceHeight(40.dp)
+            LazyRow(modifier = Modifier.fillMaxWidth()) {
+                itemsIndexed(videoThumbNailList) { index, item ->
+                    VideoThumbNail(item, onClick = {
+                        thumbNailList.clear()
+                        coroutineScope.launch {
+                            videoThumbnailListFlow(
+                                videoUri = videoUriList[index],
+                                context = context
+                            ) { thumbnail ->
+
+                                thumbNailList.add(thumbnail)
+                            }
+                        }
+
+                    })
                 }
             }
         }
 
 
-        Row {
-            Row(modifier = Modifier.weight(1f)) {
-                BlueButton(text = "Single Video", onClick = {
-                    pickSingleVideo()
-                })
-
-            }
-            SpaceWidth(width = 20.dp)
-            Row(modifier = Modifier.weight(1f)) {
-                BlueButton(text = "Multiple Video", onClick = {
-                    pickMultipleVideo()
-                })
-            }
-
-
-        }
+        BlueButton(text = "Thumbnail Multiple Video", onClick = {
+            pickMultipleVideo()
+        })
 
     }
 }
 
 @Composable
-private fun VideoThumbNail(generatedThumbNail: Bitmap?) {
+private fun VideoThumbNail(generatedThumbNail: Bitmap?, onClick: () -> Unit = {}) {
     Card(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .padding(16.dp)
+            .clickable { onClick() },
         elevation = CardDefaults.elevatedCardElevation(10.dp),
         shape = RoundedCornerShape(10.dp)
     ) {
         generatedThumbNail?.let {
             Image(
-                modifier = Modifier.height(200.dp),
+                modifier = Modifier.size(100.dp),
                 bitmap = it.asImageBitmap(),
                 contentDescription = null,
                 contentScale = ContentScale.FillBounds

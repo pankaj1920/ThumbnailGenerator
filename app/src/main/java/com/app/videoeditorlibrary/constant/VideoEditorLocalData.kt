@@ -10,6 +10,7 @@ object VideoEditorLocalData {
         videoEditorItemList.add(VideoLibModel(2, "Image Picker"))
         videoEditorItemList.add(VideoLibModel(3, "Video Picker"))
         videoEditorItemList.add(VideoLibModel(4, "Thumbnail Generator"))
+        videoEditorItemList.add(VideoLibModel(5, "Video Trimmer"))
 
         return videoEditorItemList
     }

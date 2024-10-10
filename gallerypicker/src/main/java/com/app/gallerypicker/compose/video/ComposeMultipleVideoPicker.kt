@@ -17,7 +17,7 @@ private var pickMultipleVideo: ManagedActivityResultLauncher<PickVisualMediaRequ
 @RequiresExtension(extension = Build.VERSION_CODES.R, version = 2)
 @Composable
 fun ComposeMultipleVideoPicker(
-    maxVideoCount: Int = MediaStore.getPickImagesMaxLimit(),
+    maxVideoCount: Int = 1000,
     onMultipleVideoSelected: (List<Uri>?) -> Unit,
     onVideoError: (String, String) -> Unit,
 ) {

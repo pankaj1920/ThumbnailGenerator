@@ -14,4 +14,7 @@ sealed class VideoLibRoutes {
     @Serializable
     data object VideoThumbnailScreen : VideoLibRoutes()
 
+    @Serializable
+    data object VideoTrimmerScreen : VideoLibRoutes()
+
 }

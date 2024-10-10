@@ -75,6 +75,10 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation(libs.androidx.media3.transformer)
+    implementation(libs.androidx.media3.effect)
+    implementation(libs.androidx.media3.common)
+
     implementation( "androidx.navigation:navigation-compose:$nav_version")
     implementation( "androidx.navigation:navigation-fragment-ktx:$nav_version")
     implementation( "androidx.navigation:navigation-ui-ktx:$nav_version")
@@ -82,4 +86,6 @@ dependencies {
     implementation(project(":gallerypicker"))
     implementation(project(":thumbnailgenerator"))
     implementation(project(":permission"))
+    implementation(project(":videotrimmer"))
+    implementation(project(":videoutils"))
 }
